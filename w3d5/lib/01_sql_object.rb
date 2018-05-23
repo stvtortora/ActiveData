@@ -21,7 +21,7 @@ class SQLObject
 
   def self.finalize!
     columns.each do |col|
-      define_method("#{col}") do
+      define_method(col) do
         attributes[col]
       end
       define_method("#{col}=") do |arg|
@@ -64,7 +64,16 @@ class SQLObject
 
   def self.find(id)
     # ...
-    
+    results = DBConnection.execute(<<-SQL, id)
+      SELECT
+        #{self.table_name}.*
+      FROM
+        #{self.table_name}
+      WHERE
+        #{self.table_name}.id = ?
+    SQL
+
+    parse_all(results).first
   end
 
   def initialize(params = {})
@@ -89,8 +98,8 @@ class SQLObject
 
   def insert
     # ...
-    col_names = self.class.columns.map(&:to_s).join(",")
-    question_marks = (["?"] * self.class.columns.size).join(",")
+    col_names = self.class.columns.map(&:to_s).join(", ")
+    question_marks = (["?"] * self.class.columns.size).join(", ")
 
     DBConnection.execute(<<-SQL, *attribute_values)
       INSERT INTO
