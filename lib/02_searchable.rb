@@ -4,7 +4,6 @@ require 'byebug'
 
 module Searchable
   def where(params)
-    # ...
     where_line = params.map do |attr_name, val|
       "#{attr_name} = ?"
     end.join(" AND ")
@@ -22,6 +21,5 @@ module Searchable
 end
 
 class SQLObject
-  # Mixin Searchable here...
   extend Searchable
 end
